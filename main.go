@@ -1,0 +1,80 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Print("Pokedex > ")
+		scanner.Scan()
+		line := scanner.Text()
+		cleanUp := cleanInput((line))
+		if len(cleanUp) == 0 {
+			continue
+		}
+		commandName := cleanUp[0]
+
+		command, exists := getCommands()[commandName]
+		if exists {
+			err := command.callback()
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
+		} else {
+			fmt.Println("Unknown command")
+			continue
+		}
+
+	}
+}
+
+func getCommands() map[string]cliCommand {
+	return map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Explains how to use the pokedex",
+			callback:    commandHelp,
+		},
+	}
+}
+
+func cleanInput(text string) []string {
+	lowered := strings.ToLower(text)
+	words := strings.Fields(lowered)
+	return words
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func() error
+}
+
+func commandExit() error {
+	fmt.Print("Closing the Pokedex... Goodbye!")
+	fmt.Println()
+	os.Exit(0)
+	return nil
+}
+
+func commandHelp() error {
+	fmt.Println("Welcome to the Pokedex!")
+	fmt.Println("Usage:")
+	for _, command := range getCommands() {
+		fmt.Printf("%s: %s\n", command.name, command.description)
+	}
+	fmt.Println()
+	return nil
+}
