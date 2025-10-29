@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"internal/pokeapi/getData"
 	"os"
 	"strings"
 )
@@ -47,6 +48,21 @@ func getCommands() map[string]cliCommand {
 			description: "Explains how to use the pokedex",
 			callback:    commandHelp,
 		},
+		"map": {
+			name:        "map",
+			description: "Provides a list of 20 in game areas, subsequent calls provide the next 20 areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapBack",
+			description: "Provides previous list of in game areas",
+			callback:    commandMapBack,
+		},
+		"test": {
+			name:        "test",
+			description: "test",
+			callback:    commandTest,
+		},
 	}
 }
 
@@ -76,5 +92,18 @@ func commandHelp() error {
 		fmt.Printf("%s: %s\n", command.name, command.description)
 	}
 	fmt.Println()
+	return nil
+}
+
+func commandMap() error {
+	return nil
+}
+
+func commandMapBack() error {
+	return nil
+}
+
+func commandTest() error {
+	getData.GetData("test")
 	return nil
 }
