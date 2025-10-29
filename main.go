@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"internal/pokeapi/getData"
 	"os"
 	"strings"
+
+	"github.com/Jon-Castro856/poke_api/api/getData"
 )
 
 func main() {
@@ -104,6 +105,6 @@ func commandMapBack() error {
 }
 
 func commandTest() error {
-	getData.GetData("test")
+	getData.GetData()
 	return nil
 }
