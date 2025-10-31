@@ -105,6 +105,6 @@ func commandMapBack() error {
 }
 
 func commandTest() error {
-	getData.GetData()
+	api.GetData()
 	return nil
 }
