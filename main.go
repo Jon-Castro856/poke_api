@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Jon-Castro856/poke_api/api/getData"
+	"github.com/Jon-Castro856/poke_api/internal/api"
 )
 
 func main() {
