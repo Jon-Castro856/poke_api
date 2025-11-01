@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/Jon-Castro856/poke_api/internal/api"
 )
 
 func main() {
@@ -43,34 +41,33 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    commandExit,
+			//page:        &config{},
 		},
 		"help": {
 			name:        "help",
 			description: "Explains how to use the pokedex",
 			callback:    commandHelp,
+			//page:        &config{},
 		},
 		"map": {
 			name:        "map",
-			description: "Provides a list of 20 in game areas, subsequent calls provide the next 20 areas",
+			description: "Provides a list of 20 in-game areas, subsequent calls provide the next 20 areas",
 			callback:    commandMap,
+			//page:        &config{},
 		},
 		"mapb": {
-			name:        "mapBack",
-			description: "Provides previous list of in game areas",
+			name:        "map back",
+			description: "Provides previous list of in-game areas",
 			callback:    commandMapBack,
+			//page:        &config{},
 		},
 		"test": {
 			name:        "test",
 			description: "test",
 			callback:    commandTest,
+			//page:        &config{},
 		},
 	}
-}
-
-func cleanInput(text string) []string {
-	lowered := strings.ToLower(text)
-	words := strings.Fields(lowered)
-	return words
 }
 
 type cliCommand struct {
@@ -79,32 +76,13 @@ type cliCommand struct {
 	callback    func() error
 }
 
-func commandExit() error {
-	fmt.Print("Closing the Pokedex... Goodbye!")
-	fmt.Println()
-	os.Exit(0)
-	return nil
+type config struct {
+	urlBack    string
+	urlForward string
 }
 
-func commandHelp() error {
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:")
-	for _, command := range getCommands() {
-		fmt.Printf("%s: %s\n", command.name, command.description)
-	}
-	fmt.Println()
-	return nil
-}
-
-func commandMap() error {
-	return nil
-}
-
-func commandMapBack() error {
-	return nil
-}
-
-func commandTest() error {
-	api.GetData()
-	return nil
+func cleanInput(text string) []string {
+	lowered := strings.ToLower(text)
+	words := strings.Fields(lowered)
+	return words
 }
