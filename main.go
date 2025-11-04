@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -24,12 +23,12 @@ func main() {
 		}
 		commandName := cleanUp[0]
 
-		cfg := structs.Config{}
+		cfg := &structs.Config{}
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			command.Cfg = cfg
-			err := command.Callback(command.Name, command.Cfg)
+			command.Cfg = *cfg
+			_, err := command.Callback(command.Name, &command.Cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -71,52 +70,63 @@ func getCommands() map[string]structs.CliCommand {
 	}
 }
 
-func commandExit(name string, cfg structs.Config) error {
+func commandExit(name string, cfg *structs.Config) (structs.Config, error) {
 	fmt.Print("Closing the Pokedex... Goodbye!")
 	fmt.Println()
 	os.Exit(0)
-	return nil
+	return *cfg, nil
 }
 
-func commandHelp(name string, cfg structs.Config) error {
+func commandHelp(name string, cfg *structs.Config) (structs.Config, error) {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	for _, command := range getCommands() {
 		fmt.Printf("%s: %s\n", command.Name, command.Description)
 	}
 	fmt.Println()
-	return nil
+	return *cfg, nil
 }
 
-func commandMap(name string, cfg structs.Config) error {
-	mapInfo, err := api.GetData(name, cfg)
+func commandMap(name string, cfg *structs.Config) (structs.Config, error) {
+	mapInfo, err := api.GetData(name, cfg.Forward)
 	if err != nil {
 		fmt.Printf("error acquiring data")
 	}
-	processData((mapInfo))
-	return nil
-}
-
-func commandMapBack(name string, cfg structs.Config) error {
-	mapInfo, err := api.GetData(name, cfg)
+	mapList, err := api.ProcessData(mapInfo)
 	if err != nil {
-		fmt.Printf("error acquiring data")
-	}
-	processData((mapInfo))
-	return nil
-}
-
-func processData(data []byte) error {
-	pokeMap := structs.MapData{}
-	if err := json.Unmarshal(data, &pokeMap); err != nil {
-		return err
+		fmt.Print("error processing data")
 	}
 
-	for _, area := range pokeMap.Results {
+	cfg.Back = mapList.Previous
+	cfg.Forward = mapList.Next
+
+	fmt.Printf("forward and back URLs are %s\n and %s\n", cfg.Forward, cfg.Back)
+
+	for _, area := range mapList.Results {
 		fmt.Println(area.Name)
 	}
 
-	return nil
+	return *cfg, nil
+}
+
+func commandMapBack(name string, cfg *structs.Config) (structs.Config, error) {
+	mapInfo, err := api.GetData(name, cfg.Back)
+	if err != nil {
+		fmt.Println("error acquiring data")
+	}
+	mapList, err := api.ProcessData(mapInfo)
+	if err != nil {
+		fmt.Println("error processing data")
+	}
+
+	cfg.Back = mapList.Previous
+	cfg.Forward = mapList.Next
+	fmt.Printf("forward and back URLs are %s\n and %s\n", cfg.Forward, cfg.Back)
+
+	for _, area := range mapList.Results {
+		fmt.Println(area.Name)
+	}
+	return *cfg, nil
 }
 
 func cleanInput(text string) []string {
