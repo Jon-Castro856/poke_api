@@ -13,21 +13,13 @@ func GetData(cmd string, offsetUrl string) ([]byte, error) {
 	fmt.Printf("the command is %s\n", cmd)
 	fmt.Printf("offsetURL is %s\n", offsetUrl)
 	var url string
-	if cmd == "map" {
-		if offsetUrl != "" {
-			url = offsetUrl
-		} else {
-			url = "https://pokeapi.co/api/v2/location-area"
-		}
+
+	if offsetUrl != "" {
+		url = offsetUrl
+	} else {
+		url = "https://pokeapi.co/api/v2/location-area"
 	}
 
-	if cmd == "map back" {
-		if offsetUrl != "" {
-			url = offsetUrl
-		} else {
-			url = "https://pokeapi.co/api/v2/location-area"
-		}
-	}
 	fmt.Printf("The Current url is %s\n", url)
 	if url == "" {
 		fmt.Println("URL value empty, list is either at the start or end")

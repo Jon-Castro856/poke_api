@@ -12,6 +12,7 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	cfg := &structs.Config{}
 
 	for {
 		fmt.Print("Pokedex > ")
@@ -22,8 +23,6 @@ func main() {
 			continue
 		}
 		commandName := cleanUp[0]
-
-		cfg := &structs.Config{}
 
 		command, exists := getCommands()[commandName]
 		if exists {
@@ -88,6 +87,7 @@ func commandMap(name string, cfg *structs.Config) error {
 	if err != nil {
 		fmt.Printf("error acquiring data")
 	}
+
 	mapList, err := api.ProcessData(mapInfo)
 	if err != nil {
 		fmt.Print("error processing data")
