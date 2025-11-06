@@ -10,7 +10,8 @@ import (
 )
 
 func GetData(cmd string, offsetUrl string) ([]byte, error) {
-	fmt.Printf("the command is %s", cmd)
+	fmt.Printf("the command is %s\n", cmd)
+	fmt.Printf("offsetURL is %s\n", offsetUrl)
 	var url string
 	if cmd == "map" {
 		if offsetUrl != "" {

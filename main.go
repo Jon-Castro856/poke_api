@@ -27,8 +27,7 @@ func main() {
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			command.Cfg = *cfg
-			_, err := command.Callback(command.Name, &command.Cfg)
+			err := command.Callback(command.Name, cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -47,47 +46,44 @@ func getCommands() map[string]structs.CliCommand {
 			Name:        "exit",
 			Description: "Exit the Pokedex",
 			Callback:    commandExit,
-			Cfg:         structs.Config{},
 		},
 		"help": {
 			Name:        "help",
 			Description: "Explains how to use the pokedex",
 			Callback:    commandHelp,
-			Cfg:         structs.Config{},
 		},
 		"map": {
 			Name:        "map",
 			Description: "Provides a list of 20 in-game areas, subsequent calls provide the next 20 areas",
 			Callback:    commandMap,
-			Cfg:         structs.Config{},
 		},
 		"mapb": {
 			Name:        "map back",
 			Description: "Provides previous list of in-game areas",
 			Callback:    commandMapBack,
-			Cfg:         structs.Config{},
 		},
 	}
 }
 
-func commandExit(name string, cfg *structs.Config) (structs.Config, error) {
+func commandExit(name string, cfg *structs.Config) error {
 	fmt.Print("Closing the Pokedex... Goodbye!")
 	fmt.Println()
 	os.Exit(0)
-	return *cfg, nil
+	return nil
 }
 
-func commandHelp(name string, cfg *structs.Config) (structs.Config, error) {
+func commandHelp(name string, cfg *structs.Config) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	for _, command := range getCommands() {
 		fmt.Printf("%s: %s\n", command.Name, command.Description)
 	}
 	fmt.Println()
-	return *cfg, nil
+	fmt.Printf("config is currently %s\n and %s\n", cfg.Forward, cfg.Back)
+	return nil
 }
 
-func commandMap(name string, cfg *structs.Config) (structs.Config, error) {
+func commandMap(name string, cfg *structs.Config) error {
 	mapInfo, err := api.GetData(name, cfg.Forward)
 	if err != nil {
 		fmt.Printf("error acquiring data")
@@ -106,10 +102,10 @@ func commandMap(name string, cfg *structs.Config) (structs.Config, error) {
 		fmt.Println(area.Name)
 	}
 
-	return *cfg, nil
+	return nil
 }
 
-func commandMapBack(name string, cfg *structs.Config) (structs.Config, error) {
+func commandMapBack(name string, cfg *structs.Config) error {
 	mapInfo, err := api.GetData(name, cfg.Back)
 	if err != nil {
 		fmt.Println("error acquiring data")
@@ -126,7 +122,7 @@ func commandMapBack(name string, cfg *structs.Config) (structs.Config, error) {
 	for _, area := range mapList.Results {
 		fmt.Println(area.Name)
 	}
-	return *cfg, nil
+	return nil
 }
 
 func cleanInput(text string) []string {
