@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/Jon-Castro856/poke_api/internal/structs"
+	//"github.com/Jon-Castro856/poke_api/internal/pokecache/"
 )
 
 func GetData(cmd string, offsetUrl string) ([]byte, error) {
-	fmt.Printf("the command is %s\n", cmd)
-	fmt.Printf("offsetURL is %s\n", offsetUrl)
 	var url string
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
 
 	if offsetUrl != "" {
 		url = offsetUrl
@@ -20,14 +23,18 @@ func GetData(cmd string, offsetUrl string) ([]byte, error) {
 		url = "https://pokeapi.co/api/v2/location-area"
 	}
 
-	fmt.Printf("The Current url is %s\n", url)
 	if url == "" {
 		fmt.Println("URL value empty, list is either at the start or end")
 	}
 
-	res, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("error with completing request: %v", err)
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
