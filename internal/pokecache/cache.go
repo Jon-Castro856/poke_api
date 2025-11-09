@@ -7,7 +7,7 @@ import (
 	"github.com/Jon-Castro856/poke_api/internal/structs"
 )
 
-func NewCache(inter int) structs.Cache {
+func NewCache(inter time.Duration) structs.Cache {
 	cache := structs.Cache{
 		Data:     map[string]structs.CacheEntry{},
 		Mutex:    &sync.Mutex{},

@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -52,6 +53,7 @@ func (c Cache) Add(key string, val []byte) {
 		CreatedAt: time.Now(),
 	}
 	c.Data[key] = newEntry
+	fmt.Printf("new item added: %v", c.Data[key])
 }
 
 func (c Cache) ReapLoop() {

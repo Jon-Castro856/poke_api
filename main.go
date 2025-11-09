@@ -7,15 +7,15 @@ import (
 	"strings"
 
 	"github.com/Jon-Castro856/poke_api/internal/api"
-	"github.com/Jon-Castro856/poke_api/internal/pokecache"
 	"github.com/Jon-Castro856/poke_api/internal/structs"
+	//"github.com/Jon-Castro856/poke_api/internal/pokecache/"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cfg := &structs.Config{}
 
-	cache := pokecache.NewCache(5)
+	//cache := pokecache.NewCache(5)
 
 	for {
 		fmt.Print("Pokedex > ")
