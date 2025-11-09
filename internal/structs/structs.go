@@ -40,7 +40,8 @@ type Cache struct {
 
 func (c Cache) Get(key string) ([]byte, bool) {
 	data := c.Data[key].Val
-	if data == nil {
+	fmt.Printf("data is %s\n", data)
+	if data != nil {
 		return data, true
 	} else {
 		return nil, false
@@ -53,7 +54,7 @@ func (c Cache) Add(key string, val []byte) {
 		CreatedAt: time.Now(),
 	}
 	c.Data[key] = newEntry
-	fmt.Printf("new item added: %v", c.Data[key])
+	fmt.Printf("new item added: %s\n", c.Data[key].Val)
 }
 
 func (c Cache) ReapLoop() {
