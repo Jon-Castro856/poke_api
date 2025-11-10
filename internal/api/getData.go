@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/Jon-Castro856/poke_api/internal/structs"
-	//"github.com/Jon-Castro856/poke_api/internal/pokecache/"
 )
 
-func GetData(cmd string, offsetUrl string) ([]byte, error) {
+func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
 	var url string
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -26,6 +25,13 @@ func GetData(cmd string, offsetUrl string) ([]byte, error) {
 	if url == "" {
 		fmt.Println("URL value empty, list is either at the start or end")
 	}
+
+	data, ok := cache.Get(url)
+	if ok {
+		fmt.Println("data found in the cache")
+		return data, nil
+	}
+	fmt.Println("no data in the cache, making api call")
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -48,6 +54,7 @@ func GetData(cmd string, offsetUrl string) ([]byte, error) {
 	}
 
 	defer res.Body.Close()
+	cache.Add(url, body)
 
 	return body, nil
 }

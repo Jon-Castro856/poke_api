@@ -1,7 +1,6 @@
 package structs
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -9,7 +8,7 @@ import (
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func(Name string, Cfg *Config) error
+	Callback    func(Cfg *Config, cache *Cache) error
 }
 
 type Config struct {
@@ -40,7 +39,6 @@ type Cache struct {
 
 func (c Cache) Get(key string) ([]byte, bool) {
 	data := c.Data[key].Val
-	fmt.Printf("data is %s\n", data)
 	if data != nil {
 		return data, true
 	} else {
@@ -54,15 +52,14 @@ func (c Cache) Add(key string, val []byte) {
 		CreatedAt: time.Now(),
 	}
 	c.Data[key] = newEntry
-	fmt.Printf("new item added: %s\n", c.Data[key].Val)
 }
 
 func (c Cache) ReapLoop() {
 	ticker := time.NewTicker(c.Interval)
 
-	for t := range ticker.C {
+	for range ticker.C {
 		for key, entry := range c.Data {
-			if t.Sub(entry.CreatedAt) > c.Interval {
+			if time.Since(entry.CreatedAt) > c.Interval {
 				delete(c.Data, key)
 			}
 		}

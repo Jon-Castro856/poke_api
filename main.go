@@ -7,15 +7,16 @@ import (
 	"strings"
 
 	"github.com/Jon-Castro856/poke_api/internal/api"
+	"github.com/Jon-Castro856/poke_api/internal/pokecache"
 	"github.com/Jon-Castro856/poke_api/internal/structs"
-	//"github.com/Jon-Castro856/poke_api/internal/pokecache/"
 )
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cfg := &structs.Config{}
 
-	//cache := pokecache.NewCache(5)
+	cache := pokecache.NewCache(5)
+	cachePtr := &cache
 
 	for {
 		fmt.Print("Pokedex > ")
@@ -29,7 +30,7 @@ func main() {
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			err := command.Callback(command.Name, cfg)
+			err := command.Callback(cfg, cachePtr)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -38,7 +39,6 @@ func main() {
 			fmt.Println("Unknown command")
 			continue
 		}
-
 	}
 }
 
@@ -67,14 +67,14 @@ func getCommands() map[string]structs.CliCommand {
 	}
 }
 
-func commandExit(name string, cfg *structs.Config) error {
+func commandExit(cfg *structs.Config, cache *structs.Cache) error {
 	fmt.Print("Closing the Pokedex... Goodbye!")
 	fmt.Println()
 	os.Exit(0)
 	return nil
 }
 
-func commandHelp(name string, cfg *structs.Config) error {
+func commandHelp(cfg *structs.Config, cache *structs.Cache) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	for _, command := range getCommands() {
@@ -85,8 +85,8 @@ func commandHelp(name string, cfg *structs.Config) error {
 	return nil
 }
 
-func commandMap(name string, cfg *structs.Config) error {
-	mapInfo, err := api.GetData(name, cfg.Forward)
+func commandMap(cfg *structs.Config, cache *structs.Cache) error {
+	mapInfo, err := api.GetData(cfg.Forward, cache)
 	if err != nil {
 		fmt.Printf("error acquiring data")
 	}
@@ -99,8 +99,6 @@ func commandMap(name string, cfg *structs.Config) error {
 	cfg.Back = mapList.Previous
 	cfg.Forward = mapList.Next
 
-	fmt.Printf("forward and back URLs are %s\n and %s\n", cfg.Forward, cfg.Back)
-
 	for _, area := range mapList.Results {
 		fmt.Println(area.Name)
 	}
@@ -108,8 +106,8 @@ func commandMap(name string, cfg *structs.Config) error {
 	return nil
 }
 
-func commandMapBack(name string, cfg *structs.Config) error {
-	mapInfo, err := api.GetData(name, cfg.Back)
+func commandMapBack(cfg *structs.Config, cache *structs.Cache) error {
+	mapInfo, err := api.GetData(cfg.Back, cache)
 	if err != nil {
 		fmt.Println("error acquiring data")
 	}
@@ -120,7 +118,6 @@ func commandMapBack(name string, cfg *structs.Config) error {
 
 	cfg.Back = mapList.Previous
 	cfg.Forward = mapList.Next
-	fmt.Printf("forward and back URLs are %s\n and %s\n", cfg.Forward, cfg.Back)
 
 	for _, area := range mapList.Results {
 		fmt.Println(area.Name)
