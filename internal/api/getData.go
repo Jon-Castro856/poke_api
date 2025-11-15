@@ -5,18 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/Jon-Castro856/poke_api/internal/structs"
 )
 
-func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
-	fmt.Printf("current size of the cache is %v\n", len(cache.Data))
+func GetData(offsetUrl string, config *structs.Config) ([]byte, error) {
 	fmt.Printf("current url is %s\n", offsetUrl)
 	var url string
-	client := &http.Client{
-		Timeout: 5 * time.Second,
-	}
 
 	if offsetUrl != "" {
 		url = offsetUrl
@@ -24,7 +19,7 @@ func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
 		url = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
 	}
 
-	data, ok := cache.Get(url)
+	data, ok := config.ApiClient.Cache.Get(url)
 	if ok {
 		fmt.Println("data found in the cache")
 		return data, nil
@@ -36,7 +31,7 @@ func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := client.Do(req)
+	res, err := config.ApiClient.HttpClient.Do(req)
 	if err != nil {
 		fmt.Printf("error with completing request: %v", err)
 	}
@@ -52,7 +47,7 @@ func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
 	}
 
 	defer res.Body.Close()
-	cache.Add(url, body)
+	config.ApiClient.Cache.Add(url, body)
 
 	return body, nil
 }
@@ -63,4 +58,12 @@ func ProcessData(data []byte) (structs.MapData, error) {
 		return structs.MapData{}, err
 	}
 	return pokeMap, nil
+}
+
+func ProcessLocData(data []byte) (structs.LocationDetail, error) {
+	pokeList := structs.LocationDetail{}
+	if err := json.Unmarshal(data, &pokeList); err != nil {
+		return structs.LocationDetail{}, err
+	}
+	return pokeList, nil
 }

@@ -32,6 +32,7 @@ func main() {
 		if len(cleanUp) == 0 {
 			continue
 		}
+		cfg.Command = cleanUp
 		commandName := cleanUp[0]
 
 		command, exists := getCommands()[commandName]

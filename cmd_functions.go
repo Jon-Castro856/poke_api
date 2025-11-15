@@ -57,7 +57,7 @@ func commandHelp(cfg *structs.Config) error {
 }
 
 func commandMap(cfg *structs.Config) error {
-	mapInfo, err := api.GetData(cfg.Forward, cache)
+	mapInfo, err := api.GetData(cfg.Forward, cfg)
 	if err != nil {
 		fmt.Printf("error acquiring data")
 	}
@@ -78,7 +78,7 @@ func commandMap(cfg *structs.Config) error {
 }
 
 func commandMapBack(cfg *structs.Config) error {
-	mapInfo, err := api.GetData(cfg.Back, cache)
+	mapInfo, err := api.GetData(cfg.Back, cfg)
 	if err != nil {
 		fmt.Println("error acquiring data")
 	}
@@ -96,6 +96,18 @@ func commandMapBack(cfg *structs.Config) error {
 	return nil
 }
 
-func commandExplore(cfg *structs.Config)) error {
+func commandExplore(cfg *structs.Config) error {
+	url := cfg.Command[1]
+	pokeInfo, err := api.GetData(url, cfg)
+	if err != nil {
+		fmt.Println("error acquiring data")
+	}
+	pokeList, err := api.ProcessLocData(pokeInfo)
+	if err != nil {
+		fmt.Println("error processing data")
+	}
+	for _, pokemon := range pokeList.PokemonEncounters {
+		fmt.Println(pokemon.Pokemon.Name)
+	}
 	return nil
 }
