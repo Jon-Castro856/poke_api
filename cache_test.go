@@ -42,7 +42,7 @@ func TestCache(t *testing.T) {
 	}
 }
 
-/*func TestReapLoop(t *testing.T) {
+func TestReapLoop(t *testing.T) {
 	const baseTime = 5 * time.Millisecond
 	const waitTime = baseTime + 5*time.Millisecond
 

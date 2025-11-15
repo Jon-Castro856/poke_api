@@ -11,6 +11,8 @@ import (
 )
 
 func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
+	fmt.Printf("current size of the cache is %v\n", len(cache.Data))
+	fmt.Printf("current url is %s\n", offsetUrl)
 	var url string
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -19,11 +21,7 @@ func GetData(offsetUrl string, cache *structs.Cache) ([]byte, error) {
 	if offsetUrl != "" {
 		url = offsetUrl
 	} else {
-		url = "https://pokeapi.co/api/v2/location-area"
-	}
-
-	if url == "" {
-		fmt.Println("URL value empty, list is either at the start or end")
+		url = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
 	}
 
 	data, ok := cache.Get(url)

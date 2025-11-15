@@ -1,6 +1,8 @@
 package structs
 
 import (
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -8,12 +10,13 @@ import (
 type CliCommand struct {
 	Name        string
 	Description string
-	Callback    func(Cfg *Config, cache *Cache) error
+	Callback    func(Cfg *Config) error
 }
 
 type Config struct {
-	Back    string
-	Forward string
+	ApiClient Client
+	Back      string
+	Forward   string
 }
 
 type MapData struct {
@@ -37,31 +40,49 @@ type Cache struct {
 	Interval time.Duration
 }
 
+type Client struct {
+	HttpClient http.Client
+	Cache      Cache
+}
+
 func (c Cache) Get(key string) ([]byte, bool) {
-	data := c.Data[key].Val
-	if data != nil {
-		return data, true
-	} else {
-		return nil, false
-	}
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	data, ok := c.Data[key]
+
+	return data.Val, ok
 }
 
-func (c Cache) Add(key string, val []byte) {
-	newEntry := CacheEntry{
+func (c *Cache) Add(key string, val []byte) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+	c.Data[key] = CacheEntry{
 		Val:       val,
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
 	}
-	c.Data[key] = newEntry
+	fmt.Println("added to cache. total cache entries:")
+	fmt.Println(len(c.Data))
 }
 
-func (c Cache) ReapLoop() {
-	ticker := time.NewTicker(c.Interval)
+func (c *Cache) ReapLoop(interval time.Duration) {
+	ticker := time.NewTicker(interval)
 
 	for range ticker.C {
-		for key, entry := range c.Data {
-			if time.Since(entry.CreatedAt) > c.Interval {
-				delete(c.Data, key)
-			}
+		c.Reap(time.Now().UTC(), interval)
+	}
+}
+
+func (c *Cache) Reap(now time.Time, last time.Duration) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	for key, entry := range c.Data {
+		if entry.CreatedAt.Before(now.Add(-last)) {
+
+			fmt.Println("clearing data...")
+			delete(c.Data, key)
 		}
 	}
+
 }

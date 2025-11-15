@@ -9,10 +9,9 @@ import (
 
 func NewCache(inter time.Duration) structs.Cache {
 	cache := structs.Cache{
-		Data:     map[string]structs.CacheEntry{},
-		Mutex:    &sync.Mutex{},
-		Interval: time.Duration(inter) * time.Second,
+		Data:  map[string]structs.CacheEntry{},
+		Mutex: &sync.Mutex{},
 	}
-	go cache.ReapLoop()
+	go cache.ReapLoop(inter)
 	return cache
 }
