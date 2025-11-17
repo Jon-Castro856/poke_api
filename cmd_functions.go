@@ -97,8 +97,15 @@ func commandMapBack(cfg *structs.Config) error {
 }
 
 func commandExplore(cfg *structs.Config) error {
-	url := cfg.Command[1]
-	pokeInfo, err := api.GetData(url, cfg)
+	if len(cfg.Command) != 2 {
+		fmt.Println("enter the name of a location to explore")
+		return nil
+	}
+	area := cfg.Command[1]
+
+	areaUrl := "https://pokeapi.co/api/v2/location-area/" + area
+
+	pokeInfo, err := api.GetData(areaUrl, cfg)
 	if err != nil {
 		fmt.Println("error acquiring data")
 	}

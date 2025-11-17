@@ -34,12 +34,13 @@ func GetData(offsetUrl string, config *structs.Config) ([]byte, error) {
 	res, err := config.ApiClient.HttpClient.Do(req)
 	if err != nil {
 		fmt.Printf("error with completing request: %v", err)
+		return nil, err
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
 		fmt.Printf("Erorr retreiving data: %v", res.StatusCode)
+		return nil, nil
 	}
-	fmt.Println("response succesful")
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {

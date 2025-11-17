@@ -116,8 +116,6 @@ func (c *Cache) Add(key string, val []byte) {
 		Val:       val,
 		CreatedAt: time.Now().UTC(),
 	}
-	fmt.Println("added to cache. total cache entries:")
-	fmt.Println(len(c.Data))
 }
 
 func (c *Cache) ReapLoop(interval time.Duration) {
