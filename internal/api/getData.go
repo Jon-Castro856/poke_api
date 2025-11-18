@@ -68,3 +68,11 @@ func ProcessLocData(data []byte) (structs.LocationDetail, error) {
 	}
 	return pokeList, nil
 }
+
+func ProcessPokeData(data []byte) (structs.Pokemon, error) {
+	pokeData := structs.Pokemon{}
+	if err := json.Unmarshal(data, &pokeData); err != nil {
+		return structs.Pokemon{}, err
+	}
+	return pokeData, nil
+}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/Jon-Castro856/poke_api/internal/api"
 	"github.com/Jon-Castro856/poke_api/internal/structs"
+	//"math/rand"
 )
 
 func getCommands() map[string]structs.CliCommand {
@@ -34,6 +35,12 @@ func getCommands() map[string]structs.CliCommand {
 			Name:        "explore",
 			Description: "explore a given location",
 			Callback:    commandExplore,
+		},
+
+		"catch": {
+			Name:        "catch",
+			Description: "attempt to catch a pokemon and add it to your pokedex",
+			Callback:    commandCatch,
 		},
 	}
 }
@@ -116,5 +123,27 @@ func commandExplore(cfg *structs.Config) error {
 	for _, pokemon := range pokeList.PokemonEncounters {
 		fmt.Println(pokemon.Pokemon.Name)
 	}
+	return nil
+}
+
+func commandCatch(cfg *structs.Config) error {
+	if len(cfg.Command) != 2 {
+		fmt.Println("enter the name of a pokemon to catch")
+		return nil
+	}
+	pokemon := cfg.Command[1]
+
+	pokeUrl := "https://pokeapi.co/api/v2/pokemon/" + pokemon
+
+	monInfo, err := api.GetData(pokeUrl, cfg)
+	if err != nil {
+		fmt.Println("error acquiring data")
+	}
+	fmt.Printf("Attempting to catch %s...\n", pokemon)
+
+	monData, err := api.ProcessPokeData(monInfo)
+	rate := float64((monData.BaseExperience / 600))
+	catchRate := float64(int(rate*100)) / 100
+
 	return nil
 }
