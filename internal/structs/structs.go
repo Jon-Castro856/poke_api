@@ -24,6 +24,7 @@ type Config struct {
 type Pokemon struct {
 	Name string
 	URL  string
+	Info PokemonData
 }
 
 type MapData struct {

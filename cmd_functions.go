@@ -43,6 +43,18 @@ func getCommands() map[string]structs.CliCommand {
 			Description: "attempt to catch a pokemon and add it to your pokedex",
 			Callback:    commandCatch,
 		},
+
+		"inspect": {
+			Name:        "inspect",
+			Description: "look at the stats of a pokemon you've caught",
+			Callback:    commandInspect,
+		},
+
+		"pokedex": {
+			Name:        "pokedex",
+			Description: "look at all the pokemon you've caught",
+			Callback:    commandDex,
+		},
 	}
 }
 
@@ -142,31 +154,72 @@ func commandCatch(cfg *structs.Config) error {
 	}
 
 	fmt.Printf("Attempting to catch %s...\n", pokemon)
-	fmt.Printf("Throwing a pokeball at %s...\n", pokemon)
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon)
 
 	monData, err := api.ProcessPokeData(monInfo)
 	if err != nil {
 		fmt.Println("error processing data")
 		return nil
 	}
-	rate := float64((monData.BaseExperience / 600))
+
+	rate := float64(monData.BaseExperience) / 600
 	catchRate := float64(int(rate*100)) / 100
-	catchRate = min(0.9, max(catchRate, 0.25))
-	result := rand.Float64() - catchRate
+	catchRate = max(min(catchRate, .75), .1)
+	result := rand.Float64()
+	fmt.Printf("catch rate is %v, result is %.2f\n", catchRate, result)
 
-	fmt.Printf("base exp equals: %v\n", monData.BaseExperience)
-	fmt.Printf("catch rate is %v, result is %v\n", catchRate, result)
-
-	if result >= 1.0 {
+	if result >= catchRate {
 		fmt.Printf("%s was succesfully caught!\n", pokemon)
 		catch := structs.Pokemon{
 			Name: pokemon,
 			URL:  pokeUrl,
+			Info: monData,
 		}
 		cfg.Caught[pokemon] = catch
 	} else {
 		fmt.Printf("failed to catch %s...\n", pokemon)
 	}
 
+	return nil
+}
+
+func commandInspect(cfg *structs.Config) error {
+	if len(cfg.Command) != 2 {
+		fmt.Println("enter the name of a pokemon to inspect")
+		return nil
+	}
+
+	pokemon := cfg.Command[1]
+
+	info, ok := cfg.Caught[pokemon]
+
+	if !ok {
+		fmt.Println("you haven't caught that pokemon")
+		return nil
+	}
+
+	fmt.Printf("Name: %s\n", info.Name)
+	fmt.Printf("Height: %v\n", info.Info.Height)
+	fmt.Printf("Weight: %v\n", info.Info.Weight)
+	fmt.Printf("Stats\n")
+	fmt.Printf("HP: %v\n", info.Info.Stats[0].BaseStat)
+	fmt.Printf("Attack: %v\n", info.Info.Stats[1].BaseStat)
+	fmt.Printf("Defense: %v\n", info.Info.Stats[2].BaseStat)
+	fmt.Printf("Special Attack: %v\n", info.Info.Stats[3].BaseStat)
+	fmt.Printf("Special Defense: %v\n", info.Info.Stats[4].BaseStat)
+	fmt.Printf("Speed: %v\n", info.Info.Stats[5].BaseStat)
+
+	return nil
+}
+
+func commandDex(cfg *structs.Config) error {
+	if len(cfg.Caught) == 0 {
+		fmt.Println("you haven't caught any pokemon yet")
+		return nil
+	}
+
+	for _, poke := range cfg.Caught {
+		fmt.Printf("%v\n", poke.Name)
+	}
 	return nil
 }
