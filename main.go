@@ -22,6 +22,7 @@ func main() {
 	}
 	cfg := &structs.Config{
 		ApiClient: pokeClient,
+		Caught:    make(map[string]structs.Pokemon),
 	}
 
 	for {

@@ -18,6 +18,12 @@ type Config struct {
 	Back      string
 	Forward   string
 	Command   []string
+	Caught    map[string]Pokemon
+}
+
+type Pokemon struct {
+	Name string
+	URL  string
 }
 
 type MapData struct {
@@ -44,15 +50,6 @@ type Cache struct {
 type Client struct {
 	HttpClient http.Client
 	Cache      Cache
-}
-
-func (c Cache) Get(key string) ([]byte, bool) {
-	c.Mutex.Lock()
-	defer c.Mutex.Unlock()
-
-	data, ok := c.Data[key]
-
-	return data.Val, ok
 }
 
 type LocationDetail struct {
@@ -108,7 +105,7 @@ type LocationDetail struct {
 	} `json:"pokemon_encounters"`
 }
 
-type Pokemon struct {
+type PokemonData struct {
 	ID             int    `json:"id"`
 	Name           string `json:"name"`
 	BaseExperience int    `json:"base_experience"`
@@ -393,6 +390,15 @@ type Pokemon struct {
 }
 
 // Methods----------------------------------------------
+func (c Cache) Get(key string) ([]byte, bool) {
+	c.Mutex.Lock()
+	defer c.Mutex.Unlock()
+
+	data, ok := c.Data[key]
+
+	return data.Val, ok
+}
+
 func (c *Cache) Add(key string, val []byte) {
 	c.Mutex.Lock()
 	defer c.Mutex.Unlock()

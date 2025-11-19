@@ -10,7 +10,6 @@ import (
 )
 
 func GetData(offsetUrl string, config *structs.Config) ([]byte, error) {
-	fmt.Printf("current url is %s\n", offsetUrl)
 	var url string
 
 	if offsetUrl != "" {
@@ -21,10 +20,8 @@ func GetData(offsetUrl string, config *structs.Config) ([]byte, error) {
 
 	data, ok := config.ApiClient.Cache.Get(url)
 	if ok {
-		fmt.Println("data found in the cache")
 		return data, nil
 	}
-	fmt.Println("no data in the cache, making api call")
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -69,10 +66,10 @@ func ProcessLocData(data []byte) (structs.LocationDetail, error) {
 	return pokeList, nil
 }
 
-func ProcessPokeData(data []byte) (structs.Pokemon, error) {
-	pokeData := structs.Pokemon{}
+func ProcessPokeData(data []byte) (structs.PokemonData, error) {
+	pokeData := structs.PokemonData{}
 	if err := json.Unmarshal(data, &pokeData); err != nil {
-		return structs.Pokemon{}, err
+		return structs.PokemonData{}, err
 	}
 	return pokeData, nil
 }

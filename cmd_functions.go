@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"math/rand"
+
 	"github.com/Jon-Castro856/poke_api/internal/api"
 	"github.com/Jon-Castro856/poke_api/internal/structs"
-	//"math/rand"
 )
 
 func getCommands() map[string]structs.CliCommand {
@@ -139,11 +140,33 @@ func commandCatch(cfg *structs.Config) error {
 	if err != nil {
 		fmt.Println("error acquiring data")
 	}
+
 	fmt.Printf("Attempting to catch %s...\n", pokemon)
+	fmt.Printf("Throwing a pokeball at %s...\n", pokemon)
 
 	monData, err := api.ProcessPokeData(monInfo)
+	if err != nil {
+		fmt.Println("error processing data")
+		return nil
+	}
 	rate := float64((monData.BaseExperience / 600))
 	catchRate := float64(int(rate*100)) / 100
+	catchRate = min(0.9, max(catchRate, 0.25))
+	result := rand.Float64() - catchRate
+
+	fmt.Printf("base exp equals: %v\n", monData.BaseExperience)
+	fmt.Printf("catch rate is %v, result is %v\n", catchRate, result)
+
+	if result >= 1.0 {
+		fmt.Printf("%s was succesfully caught!\n", pokemon)
+		catch := structs.Pokemon{
+			Name: pokemon,
+			URL:  pokeUrl,
+		}
+		cfg.Caught[pokemon] = catch
+	} else {
+		fmt.Printf("failed to catch %s...\n", pokemon)
+	}
 
 	return nil
 }
